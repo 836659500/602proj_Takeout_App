@@ -9,4 +9,6 @@ Tech Stack:
     
 start:  
 1 execute cd .\controller\ to get to the controller folder  
-2 execute node Index.js to start the project
+2 execute node Index.js to start the project  
+
+https://github.com/836659500/602proj_Takeout_App
