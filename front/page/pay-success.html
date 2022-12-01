@@ -29,7 +29,6 @@
                 <div class="divSuccess">order successfully</div>
                 <div class="divDesc">estimated{{finishTime}}delievery</div>
                 <div class="divDesc1">Be patient</div>
-                <div class="btnView" @click="toOrderPage">orderDetail</div>
             </div>
         </div>
         <!-- 开发环境版本，包含了有帮助的命令行警告 -->
@@ -57,11 +56,6 @@
                     window.requestAnimationFrame(()=>{
                         window.location.replace('/front/index.html')
                     })   
-                },
-                toOrderPage(){
-                    window.requestAnimationFrame(()=>{
-                        window.location.replace('/front/page/order.html')
-                    })  
                 },
                 toMainPage(){
                     window.requestAnimationFrame(()=>{

@@ -59,12 +59,4 @@ function clearCartApi() {
     })
 }
 
-//获取套餐的全部菜品
-function setMealDishDetailsApi(id) {
-    return $axios({
-        'url': `/setmeal/dish/${id}`,
-        'method': 'get',
-    })
-}
-
 

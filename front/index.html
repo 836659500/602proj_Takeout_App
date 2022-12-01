@@ -21,7 +21,7 @@
   <body>
     <div id="main" class="app">
       <div class="divHead">
-        <img src="./images/user.png" @click="toUserPage"/>
+        <img src="./images/user.png" />
       </div>
       <div class="divTitle">
         <div class="divStatic">
@@ -47,7 +47,7 @@
         </div>
         <div class="divMenu">
           <div>
-            <div class="divItem" v-for="(item,index) in dishList" :key="index" @click="dishDetails(item)">
+            <div class="divItem" v-for="(item,index) in dishList" :key="index">
               <el-image :src="imgPathConvert(item.image)" >
                 <div slot="error" class="image-slot">
                   <img src="./images/noImg.png"/>
@@ -118,7 +118,6 @@
                   <span class="spanMoney">$</span>{{item.amount}}</div>
               </div>
               <div class="divNum">
-                <!-- <div class="divDishNum">{{item.number}}</div> -->
                 <div class="divAdd">
                   <img src="./images/add.png" @click="cartNumAdd(item)"/>
                 </div>
@@ -147,51 +146,12 @@
               <span>$</span><span>{{detailsDialog.item.price/100}}</span>
             </div>
             <div class="right">
-                <!-- <div class="divDishNum">{{detailsDialog.item.number}}</div> -->
                 <div class="divAdd" v-else>
                   <img src="./images/add.png" @click="addCart(detailsDialog.item)"/>
                 </div>
             </div>
           </div>
           <div class="detailsDialogClose" @click="detailsDialog.show = false">
-            <img src="./images/close.png"/>
-          </div>
-        </van-dialog>
-        <van-dialog v-model="setMealDialog.show" 
-                    :show-confirm-button="false" 
-                    class="setMealDetailsDialog" 
-                    ref="setMealDetailsDialogd"
-                    v-if="setMealDialog.show"
-                    >
-          <div class="divContainer">
-            <div class="title">{{setMealDialog.item.name}}</div>
-              <div class="item" v-for="(item,index) in setMealDialog.item.list" :key="index">
-                <el-image :src="imgPathConvert(item.image)">
-                  <div slot="error" class="image-slot">
-                    <img src="./images/noImg.png"/>
-                  </div>
-                </el-image>
-                <div class="divSubTitle">{{item.name + '(' + item.copies + '份)' }}
-                  <div class="divPrice">
-                    <span>$</span><span>{{item.price/100}}</span>
-                  </div>
-                </div>                
-                <div class="content">{{item.description}}</div>
-              </div>
-            </div>
-          <div class="divNum">
-              <div class="left">
-                <span>$</span><span>{{setMealDialog.item.price/100}}</span>
-              </div>
-              <div class="right">
-                  <!-- <div class="divDishNum">{{setMealDialog.item.number}}</div> -->
-                  <div class="divAdd" v-if="setMealDialog.item.number">
-                    <img src="./images/add.png" @click="addCart(setMealDialog.item)"/>
-                  </div>
-                  <div class="addCart"  @click="addCart(setMealDialog.item)" v-if="!setMealDialog.item.number">Add to Cart</div>
-              </div>
-          </div>
-          <div class="detailsDialogClose" @click="setMealDialog.show = false">
             <img src="./images/close.png"/>
           </div>
         </van-dialog>
@@ -232,10 +192,6 @@
                 show:false,
                 item:{image:''}
               },
-              setMealDialog:{
-                show:false,
-                item:{}
-              },
             }
           },
           computed:{
@@ -244,11 +200,6 @@
               this.cartData.forEach(item=>{
                 num += item.number 
               })
-              if(num <99){
-                return num
-              }else{
-                return '99+'
-              }
             },
             goodsPrice(){
               let price = 0
@@ -283,8 +234,6 @@
                     this.categoryId = res[0].data[0].id
                     if(res[0].data[0].type === 1){
                       this.getDishList()
-                    }else{
-                      this.getSetmealData()
                     }
                   }
                 }else{
@@ -304,8 +253,6 @@
               this.categoryId = id
               if(type === 1){//菜品
                 this.getDishList()
-              }else{
-                this.getSetmealData()
               }
             },
             //获取菜品数据
@@ -331,29 +278,6 @@
                 this.$notify({ type:'warning', message:res.msg});
               }
             },
-            //获取套餐数据setmealId
-            async getSetmealData(){
-              if(!this.categoryId){
-                return
-              }
-              const res = await setmealListApi({categoryId:this.categoryId,status:1})
-              if(res.code === 1){
-                  let dishList = res.data
-                  const cartData  = this.cartData
-                  if(dishList.length > 0 && cartData.length > 0){
-                    dishList.forEach(dish=>{
-                      cartData.forEach(cart=>{
-                        if(dish.id === cart.setmealId){
-                          dish.number = cart.number
-                        }
-                      })
-                    })
-                  }
-                  this.dishList = dishList
-              }else{
-                this.$notify({ type:'warning', message:res.msg});
-              }
-            },
             //获取购物车数据
             async getCartData(){
               const res = await cartListApi({})
@@ -369,14 +293,11 @@
                 amount:item.price/100,//金额
                 dishFlavor:item.dishFlavor,//口味  如果没有传undefined
                 dishId:undefined,//菜品id
-                setmealId:undefined,//套餐id
                 name:item.name,
                 image:item.image
               }
               if(Array.isArray(item.flavors)){//表示是菜品
                 params.dishId = item.id
-              }else{//表示套餐 套餐没有口味
-                params.setmealId = item.id
               }
               const res = await addCartApi(params)
               if(res.code === 1){
@@ -385,9 +306,6 @@
                     dish.number = res.data.number
                   }
                 })
-                if(this.setMealDialog.show){
-                  item.number = res.data.number
-                }
                 this.getCartData()
               }else{
                 this.$notify({ type:'warning', message:res.msg});
@@ -406,14 +324,13 @@
                 amount:item.amount,//金额
                 dishFlavor:item.dishFlavor,//口味  如果没有传undefined
                 dishId:item.dishId,//菜品id
-                setmealId:item.setmealId,//套餐id
                 name:item.name,
                 image:item.image
               }
               const res = await addCartApi(params)
               if(res.code === 1){
                 this.dishList.forEach(dish=>{
-                  if(dish.id === (item.dishId || item.setmealId)){
+                  if(dish.id === (item.dishId)){
                     dish.number = res.data.number
                   }
                 })
@@ -467,30 +384,6 @@
                   window.location.href ='/front/page/add-order.html'
                 })
               }
-            },
-            toUserPage(){
-              window.requestAnimationFrame(()=>{
-                window.location.href= '/front/page/user.html'
-              })
-            },
-            async dishDetails(item){
-              //先清除对象数据，如果不行的话dialog使用v-if
-              this.detailsDialog.item = {}
-              this.setMealDialog.item = {}
-              if(Array.isArray(item.flavors)){
-                this.detailsDialog.item = item
-                this.detailsDialog.show = true
-              }else{
-                //显示套餐的数据
-                const res = await setMealDishDetailsApi(item.id)
-                if(res.code === 1){
-                  this.setMealDialog.item = {...item,list:res.data}
-                  this.setMealDialog.show = true
-                }else{
-                  this.$notify({ type:'warning', message:res.msg});
-                }
-              }
-
             }
 
           }
